@@ -1,0 +1,203 @@
+/* ============================================================================
+   scrollcraft.css (launch-site edition): device styles for scrollcraft.js
+   Adapted from scroll-craft (MIT). Load it only on pages that use a scroll
+   moment (a pinned act, scrub video, kinetic type, parallax planes, a rail).
+   Reveals ([data-sc-in]) are styled in ../motion.css, so a page without a
+   scroll moment needs neither this file nor the engine.
+
+   Requires tokens.css (colours, gutter, easing are bridged below) and the
+   `js` class snippet in <head> (references/motion.md): every hidden starting
+   state is scoped to html.js, so the page reads in full without JavaScript.
+   Do not restyle the device rules to taste; style your own markup instead.
+   ========================================================================== */
+
+:root {
+  --sc-canvas: var(--color-bg);
+  --sc-surface: var(--color-surface);
+  --sc-ink: var(--color-text);
+  --sc-ink-soft: var(--color-text-muted);
+  --sc-accent: var(--color-primary);
+  --sc-accent-ink: var(--color-primary-contrast);
+  --sc-gutter: var(--gutter);
+  --sc-ease-out: var(--ease-out);
+  --sc-z-stage: 1; --sc-z-copy: 20; --sc-z-chrome: 60;
+  /* the site header is sticky and opaque, so a stage pins below it; copy keeps
+     clear of the phone action bar */
+  --sc-safe-top: var(--header-h, 0px);
+  --sc-safe-bottom: 0px;
+}
+@media (max-width: 47.99em) { body:has(.action-bar) { --sc-safe-bottom: 4.5rem; } }
+
+/* Text over a photograph or film: a dark local ground for the scrims and copy,
+   whatever the page palette. Put it on the act or the stage. */
+[data-sc-tone="dark"] {
+  --sc-canvas: var(--stage-dark, oklch(0.17 0.012 var(--brand-h)));
+  --sc-ink: #fff;
+  --sc-ink-soft: oklch(0.9 0.01 var(--brand-h));
+  color: var(--sc-ink);
+}
+
+/* ---------------------------------------------------------------- acts -- */
+.sc-act--pinned { position: relative; }
+.sc-stage {
+  position: sticky; top: var(--sc-safe-top);
+  height: calc(100vh - var(--sc-safe-top)); height: calc(100svh - var(--sc-safe-top));
+  overflow: clip;
+  z-index: var(--sc-z-stage);
+  background: var(--sc-canvas);
+}
+
+/* scrub video / image sequence / poster fill the stage */
+.sc-stage :is(video[data-sc-scrub], canvas[data-sc-sequence], .sc-stage__poster) {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+video[data-sc-scrub] { opacity: 0; transition: opacity 380ms var(--sc-ease-out); }
+.sc-has-clip video[data-sc-scrub] { opacity: 1; }
+/* The poster holds the frame until a real video frame has painted: no blank-stage flash.
+   It is also what reduced motion and slow connections see, so it is a real, optimised image. */
+.sc-stage__poster { z-index: 0; transition: opacity 380ms var(--sc-ease-out); }
+.sc-has-clip .sc-stage__poster { opacity: 0; }
+
+/* ---------------------------------------------------------------- scrims --
+   A scrim only where the text sits, pointed at the copy. A full-frame
+   darkening layer flattens the image everywhere to fix one corner. */
+.sc-scrim {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: linear-gradient(
+    var(--sc-scrim-angle, 180deg),
+    color-mix(in oklab, var(--sc-canvas) var(--sc-scrim-a, 78%), transparent) 0%,
+    color-mix(in oklab, var(--sc-canvas) 30%, transparent) 42%,
+    transparent 68%);
+}
+.sc-scrim--bottom { --sc-scrim-angle: 0deg; }
+.sc-scrim--left   { --sc-scrim-angle: 90deg; }
+.sc-scrim--right  { --sc-scrim-angle: 270deg; }
+.sc-scrim--lead {
+  background: linear-gradient(to top right,
+    color-mix(in oklab, var(--sc-canvas) 94%, transparent) 0%,
+    color-mix(in oklab, var(--sc-canvas) 72%, transparent) 30%,
+    color-mix(in oklab, var(--sc-canvas) 30%, transparent) 52%,
+    transparent 72%);
+}
+.sc-scrim--trail {
+  background: linear-gradient(to top left,
+    color-mix(in oklab, var(--sc-canvas) 94%, transparent) 0%,
+    color-mix(in oklab, var(--sc-canvas) 72%, transparent) 30%,
+    color-mix(in oklab, var(--sc-canvas) 30%, transparent) 52%,
+    transparent 72%);
+}
+.sc-scrim--band {
+  background: linear-gradient(to top,
+    color-mix(in oklab, var(--sc-canvas) 94%, transparent) 0%,
+    color-mix(in oklab, var(--sc-canvas) 74%, transparent) 22%,
+    color-mix(in oklab, var(--sc-canvas) 30%, transparent) 42%,
+    transparent 58%);
+}
+
+/* ------------------------------------------------------- copy on a stage --
+   max-width in rem, never ch: a ch here resolves against the container's
+   body size and wraps a display headline to six lines. Put ch measures on
+   the text element itself. */
+.sc-copy {
+  position: absolute; z-index: var(--sc-z-copy);
+  inset-inline: var(--sc-gutter);
+  max-width: min(46rem, 76vw);
+  color: var(--sc-ink);
+}
+.sc-copy--lead   { left: var(--sc-gutter); bottom: calc(var(--sc-safe-bottom) + clamp(3rem, 12vh, 9rem)); }
+/* inset-inline first: declared after `left: 50%` it would reset left to auto. */
+.sc-copy--center { inset-inline: auto; left: 50%; top: 50%; translate: -50% -50%; text-align: center; }
+.sc-copy--trail  { inset-inline: auto; right: var(--sc-gutter); bottom: calc(var(--sc-safe-bottom) + clamp(3rem, 12vh, 9rem)); text-align: right; }
+
+/* ------------------------------------------------------------- devices --
+   Hidden starting states only under html.js, so no-JS readers get everything. */
+.js [data-sc-cue] { opacity: 0; }
+/* ls-ready means site.js ran without the engine: show the copy rather than leave it hidden */
+.ls-ready [data-sc-cue] { opacity: 1; }
+[data-sc-cue] { will-change: opacity, transform; }
+.sc-ready [data-sc-cue] { transition: none; }
+
+/* data-sc-still on a pinned act: the finished still. Without the engine (no
+   script, not yet mounted, failed to load) and under reduced motion the act
+   drops its pinned length and reads as an ordinary section; the recipe's own
+   CSS lays out the still (scroll-engine.md). */
+html:not(.sc-ready) [data-sc-act][data-sc-still] { height: auto !important; }
+html:not(.sc-ready) [data-sc-still] :is(.sc-stage, [data-sc-stage]) { position: relative; height: auto; overflow: visible; }
+html:not(.sc-ready) [data-sc-still] [data-sc-cue] { opacity: 1 !important; transform: none !important; }
+html:not(.sc-ready) [data-sc-still] [data-sc-reveal] { clip-path: none !important; }
+
+/* kinetic split. The padding gives descenders (g, y, p) room inside the line mask. */
+.sc-split { display: inline-block; overflow: hidden; vertical-align: top; }
+.sc-split--line { display: block; padding-bottom: 0.14em; margin-bottom: -0.14em; }
+.sc-split__i { display: inline-block; will-change: transform, opacity; }
+.sc-is-split { opacity: 1 !important; }
+
+[data-sc-pan] { display: flex; will-change: transform; }
+[data-sc-reveal] { will-change: clip-path; }
+[data-sc-parallax] { will-change: transform; }
+
+/* pointer devices: expressive tier only, fine pointers only (the engine gates them) */
+[data-sc-tilt] { transform-style: preserve-3d; will-change: transform; }
+[data-sc-magnet] { will-change: transform; }
+/* :where() keeps position at zero specificity so a stage carrying both stays sticky. */
+[data-sc-spotlight] { isolation: isolate; }
+:where([data-sc-spotlight]) { position: relative; }
+[data-sc-spotlight]::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  background: radial-gradient(
+    28rem 28rem at calc(var(--sc-mx, 0.5) * 100%) calc(var(--sc-my, 0.5) * 100%),
+    color-mix(in oklab, var(--sc-accent) 14%, transparent), transparent 70%);
+  opacity: 0; transition: opacity 420ms var(--sc-ease-out);
+}
+[data-sc-spotlight]:hover::after { opacity: 1; }
+
+[data-sc-count] { font-variant-numeric: tabular-nums; }
+
+/* reading progress bar (long articles only) */
+[data-sc-progress] {
+  position: fixed; inset: 0 0 auto 0; height: 2px; z-index: var(--sc-z-chrome);
+  background: var(--sc-accent); transform-origin: 0 50%; transform: scaleX(0);
+  will-change: transform;
+}
+
+/* film grain over a dark stage, so a flat dark ground does not band */
+.sc-grain { position: absolute; inset: 0; pointer-events: none; z-index: 3; opacity: 0.045; overflow: hidden; }
+.sc-grain::before {
+  content: ""; position: absolute; inset: -50%;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
+}
+
+/* -------------------------------------------------------- reduced motion --
+   Fewer and gentler, not zero: cues still fade, every position change goes. */
+@media (prefers-reduced-motion: reduce) {
+  [data-sc-parallax], [data-sc-pan], .sc-split__i { transform: none !important; }
+  [data-sc-reveal] { clip-path: none !important; }
+  /* A rail's transform is its navigation: hand the travel back as a normal scroll region. */
+  [data-sc-act="pan"] .sc-stage,
+  [data-sc-act="pan"] [data-sc-stage] {
+    overflow-x: auto; overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+  }
+  [data-sc-pan] > * { scroll-snap-align: center; }
+  [data-sc-spotlight]::after { display: none; }
+  [data-sc-act][data-sc-still] { height: auto !important; }
+  [data-sc-still] :is(.sc-stage, [data-sc-stage]) { position: relative; height: auto; overflow: visible; }
+  [data-sc-still] [data-sc-cue] { opacity: 1 !important; transform: none !important; }
+}
+
+/* ---------------------------------------------------------------- mobile -- */
+@media (max-width: 860px) {
+  .sc-copy { inset-inline: var(--sc-gutter); max-width: none; }
+  .sc-copy--trail { text-align: left; }
+  /* trail copy re-anchors left here, so its scrim becomes a bottom band */
+  .sc-scrim--trail {
+    background: linear-gradient(to top,
+      color-mix(in oklab, var(--sc-canvas) 94%, transparent) 0%,
+      color-mix(in oklab, var(--sc-canvas) 74%, transparent) 22%,
+      color-mix(in oklab, var(--sc-canvas) 30%, transparent) 42%,
+      transparent 58%);
+  }
+}

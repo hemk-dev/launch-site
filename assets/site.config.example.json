@@ -1,0 +1,77 @@
+{
+  "$comment": "Example site config for a day spa. Every value is a placeholder: replace it with the brief's facts, never invent contact details. Secrets go in env vars, never here.",
+  "identity": {
+    "name": "Example Spa",
+    "legalName": "",
+    "url": "https://www.example.com",
+    "logo": { "src": "/brand/logo.svg", "alt": "Example Spa" },
+    "kind": "place",
+    "vertical": "spa",
+    "schemaType": "DaySpa"
+  },
+  "contact": {
+    "phone": "",
+    "email": "",
+    "address": {
+      "street": "",
+      "city": "",
+      "region": "",
+      "postalCode": "",
+      "country": ""
+    },
+    "geo": null,
+    "directionsUrl": "https://www.openstreetmap.org/search?query=Street%20City",
+    "hours": [
+      { "days": ["Tu", "We", "Th", "Fr"], "opens": "10:00", "closes": "20:00" },
+      { "days": ["Sa"], "opens": "09:00", "closes": "17:00" }
+    ]
+  },
+  "social": {
+    "instagram": "",
+    "facebook": ""
+  },
+  "navigation": {
+    "header": [
+      { "label": "Treatments", "href": "/treatments/", "children": "collection:services" },
+      { "label": "About", "href": "/about/" },
+      { "label": "Visit", "href": "/visit/" }
+    ],
+    "cta": { "label": "Book a treatment", "href": "/book/" },
+    "footer": [
+      { "title": "Pages", "links": [{ "label": "Treatments", "href": "/treatments/" }, { "label": "About", "href": "/about/" }] },
+      { "title": "Legal", "links": [{ "label": "Privacy", "href": "/privacy/" }] }
+    ]
+  },
+  "seo": {
+    "titleTemplate": "%s | Example Spa",
+    "defaultTitle": "Day spa in Old Town | Example Spa",
+    "defaultDescription": "Massage, facials and a heated pool in Old Town. Open Tuesday to Saturday from 10:00. Book online in two minutes.",
+    "defaultOgImage": "/og/default.jpg",
+    "locales": ["en-GB"],
+    "defaultLocale": "en-GB",
+    "trailingSlash": true
+  },
+  "theme": {
+    "$comment": "palette and type are ids from library/ (scripts/brand.mjs deal). brandColors overrides the palette when the client has its own; the tokens.css BRAND block is generated from these. motionTier: calm | balanced | expressive (references/motion.md).",
+    "palette": "plaster-rose",
+    "type": "fraunces",
+    "brandColors": null,
+    "radius": "soft",
+    "motionTier": "balanced",
+    "scrollMoment": "photo-chapters",
+    "darkMode": "off"
+  },
+  "features": {
+    "blog": false,
+    "newsletter": false,
+    "phoneActionBar": true,
+    "analytics": false,
+    "cookieConsent": false
+  },
+  "integrations": {
+    "formEndpointEnv": "PUBLIC_FORM_ENDPOINT",
+    "bookingUrlEnv": "PUBLIC_BOOKING_URL",
+    "analyticsIdEnv": "PUBLIC_ANALYTICS_ID"
+  },
+  "redirects": []
+}

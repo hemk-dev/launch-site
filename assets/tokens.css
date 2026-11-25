@@ -1,0 +1,179 @@
+/*
+ * Design tokens: the single source of truth for the theme.
+ * Components use only the semantic aliases (--color-*, --font-*, --step-*, --space-*, --m-*).
+ * Copy into the project's styles folder (e.g. src/styles/tokens.css).
+ *
+ * Re-theming:
+ *   1. `node <skill>/scripts/brand.mjs ...` prints a BRAND block (hex colours, fonts, hue).
+ *      Paste it over the BRAND block at the end of this file.
+ *   2. `python3 <skill>/scripts/contrast.py tokens.css` must report 0 below minimum.
+ *
+ * Dark mode is opt-in, because most brand palettes are designed for one ground:
+ *   <html>                     light only (default)
+ *   <html data-theme="auto">   follows the OS setting
+ *   <html data-theme="dark">   always dark
+ * The two dark blocks must stay identical. If the site has no dark mode, delete both.
+ */
+@layer tokens {
+  :root {
+    /* Brand hue: drives the tonal scales, focus ring and the dark theme */
+    --brand-h: 200;      /* 200 teal-blue, 150 green, 260 indigo, 30 orange, 350 rose */
+    --brand-c: 0.14;     /* 0.08 muted ... 0.2 vivid */
+    --accent-h: 40;
+
+    --brand-50:  oklch(0.97 calc(var(--brand-c) * 0.15) var(--brand-h));
+    --brand-100: oklch(0.93 calc(var(--brand-c) * 0.3)  var(--brand-h));
+    --brand-200: oklch(0.87 calc(var(--brand-c) * 0.5)  var(--brand-h));
+    --brand-300: oklch(0.79 calc(var(--brand-c) * 0.75) var(--brand-h));
+    --brand-400: oklch(0.70 var(--brand-c) var(--brand-h));
+    --brand-500: oklch(0.62 var(--brand-c) var(--brand-h));
+    --brand-600: oklch(0.54 var(--brand-c) var(--brand-h));
+    --brand-700: oklch(0.46 calc(var(--brand-c) * 0.9) var(--brand-h));
+    --brand-800: oklch(0.38 calc(var(--brand-c) * 0.8) var(--brand-h));
+    --brand-900: oklch(0.30 calc(var(--brand-c) * 0.6) var(--brand-h));
+    --brand-950: oklch(0.22 calc(var(--brand-c) * 0.5) var(--brand-h));
+
+    --accent-500: oklch(0.75 0.16 var(--accent-h));
+    --accent-600: oklch(0.66 0.17 var(--accent-h));
+
+    /* Neutrals tinted slightly toward the brand hue (never flat grey, never pure black) */
+    --neutral-0:    oklch(1 0 0);
+    --neutral-50:   oklch(0.98 0.004 var(--brand-h));
+    --neutral-100:  oklch(0.96 0.006 var(--brand-h));
+    --neutral-200:  oklch(0.91 0.008 var(--brand-h));
+    --neutral-300:  oklch(0.84 0.01  var(--brand-h));
+    --neutral-400:  oklch(0.70 0.012 var(--brand-h));
+    --neutral-500:  oklch(0.56 0.012 var(--brand-h));
+    --neutral-600:  oklch(0.46 0.012 var(--brand-h));
+    --neutral-700:  oklch(0.37 0.012 var(--brand-h));
+    --neutral-800:  oklch(0.27 0.01  var(--brand-h));
+    --neutral-900:  oklch(0.20 0.008 var(--brand-h));
+    --neutral-950:  oklch(0.15 0.006 var(--brand-h));
+
+    /* Semantic aliases (light): components use only these */
+    --color-bg: var(--neutral-0);
+    --color-surface: var(--neutral-50);
+    --color-surface-raised: var(--neutral-0);
+    --color-text: var(--neutral-900);
+    --color-text-muted: var(--neutral-600);
+    --color-border: var(--neutral-200);          /* decorative dividers only (~1.3:1) */
+    --color-border-strong: var(--neutral-500);   /* form-control and UI boundaries: needs >= 3:1 (WCAG 1.4.11) */
+    --color-primary: var(--brand-700);           /* the one action colour: buttons, key highlights */
+    --color-primary-hover: var(--brand-800);
+    --color-primary-contrast: var(--neutral-0);  /* text ON the primary fill */
+    --color-link: var(--brand-700);              /* links in running text, >= 4.5:1 on bg */
+    --color-accent: var(--accent-600);           /* optional second colour, used sparingly */
+    --color-accent-contrast: var(--neutral-950);
+    --color-accent-text: oklch(0.5 0.15 var(--accent-h));
+    --color-focus: var(--brand-500);
+    --color-danger: oklch(0.52 0.19 25);
+    --color-success: oklch(0.5 0.13 150);
+    --color-section-brand-bg: var(--brand-900);
+    --color-section-brand-text: var(--neutral-0);
+
+    /* Typography: two families at most. brand.mjs replaces these. Inter is not a default. */
+    --font-display: ui-serif, Georgia, "Times New Roman", serif;
+    --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --display-weight: 500;
+    --display-tracking: -0.02em;   /* tracking tightens as size grows */
+
+    --step--1: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
+    --step-0:  clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+    --step-1:  clamp(1.2rem, 1.1rem + 0.45vw, 1.4rem);
+    --step-2:  clamp(1.44rem, 1.28rem + 0.8vw, 1.875rem);
+    --step-3:  clamp(1.73rem, 1.45rem + 1.4vw, 2.5rem);
+    --step-4:  clamp(2.07rem, 1.6rem + 2.3vw, 3.25rem);
+    --step-5:  clamp(2.49rem, 1.75rem + 3.7vw, 4.5rem);
+
+    --leading-tight: 1.1;
+    --leading-snug: 1.3;
+    --leading-normal: 1.6;
+    --measure: 65ch;
+
+    /* Spacing (4px base) */
+    --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+    --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem;
+    --space-12: 3rem; --space-16: 4rem; --space-20: 5rem; --space-24: 6rem;
+    --section-y: clamp(3.5rem, 9vw, 8rem);
+    --gutter: clamp(1.25rem, 4vw, 2.5rem);
+
+    --container-sm: 40rem;
+    --container: 72rem;
+    --container-lg: 80rem;
+    --header-h: 4.25rem;
+
+    /* Shape & depth: one radius scale per site; shadows have offset + blur, tinted, never a coloured halo */
+    --radius-sm: 0.375rem; --radius-md: 0.75rem; --radius-lg: 1.25rem; --radius-full: 9999px;
+    --shadow-1: 0 1px 2px oklch(0.2 0.02 var(--brand-h) / 0.06), 0 1px 3px oklch(0.2 0.02 var(--brand-h) / 0.08);
+    --shadow-2: 0 4px 12px oklch(0.2 0.02 var(--brand-h) / 0.08);
+    --shadow-3: 0 12px 32px oklch(0.2 0.02 var(--brand-h) / 0.12);
+
+    /* Motion: references/motion.md holds every number */
+    --m-in: 150ms;          /* hover in */
+    --m-out: 120ms;         /* hover out */
+    --m-press: 90ms;        /* a press */
+    --m-panel: 200ms;       /* a menu or sheet opening */
+    --m-image: 600ms;       /* a photograph scaling inside its frame */
+    --m-image-out: 400ms;
+    --m-enter: 700ms;       /* one hero item entering */
+    --ease: cubic-bezier(0.2, 0.8, 0.2, 1);          /* every UI step */
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);      /* entrances settling, never past the mark */
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);   /* travel only */
+
+    color-scheme: light;
+  }
+
+  /* Dark theme, opt-in: data-theme="auto" follows the OS, data-theme="dark" forces it.
+     Keep the two blocks identical. */
+  @media (prefers-color-scheme: dark) {
+    :root[data-theme="auto"] {
+      --color-bg: var(--neutral-950);
+      --color-surface: var(--neutral-900);
+      --color-surface-raised: var(--neutral-800);
+      --color-text: var(--neutral-50);
+      --color-text-muted: var(--neutral-400);
+      --color-border: var(--neutral-800);
+      --color-border-strong: var(--neutral-500);
+      --color-primary: var(--brand-400);
+      --color-primary-hover: var(--brand-300);
+      --color-primary-contrast: var(--neutral-950);
+      --color-link: var(--brand-300);
+      --color-accent: var(--accent-500);
+      --color-accent-contrast: var(--neutral-950);
+      --color-accent-text: var(--accent-500);
+      --color-focus: var(--brand-400);
+      --color-danger: oklch(0.72 0.16 25);
+      --color-success: oklch(0.76 0.14 150);
+      --color-section-brand-bg: var(--brand-950);
+      --color-section-brand-text: var(--neutral-0);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --color-bg: var(--neutral-950);
+    --color-surface: var(--neutral-900);
+    --color-surface-raised: var(--neutral-800);
+    --color-text: var(--neutral-50);
+    --color-text-muted: var(--neutral-400);
+    --color-border: var(--neutral-800);
+    --color-border-strong: var(--neutral-500);
+    --color-primary: var(--brand-400);
+    --color-primary-hover: var(--brand-300);
+    --color-primary-contrast: var(--neutral-950);
+    --color-link: var(--brand-300);
+    --color-accent: var(--accent-500);
+    --color-accent-contrast: var(--neutral-950);
+    --color-accent-text: var(--accent-500);
+    --color-focus: var(--brand-400);
+    --color-danger: oklch(0.72 0.16 25);
+    --color-success: oklch(0.76 0.14 150);
+    --color-section-brand-bg: var(--brand-950);
+    --color-section-brand-text: var(--neutral-0);
+    color-scheme: dark;
+  }
+
+  /* BRAND block: replace everything between the markers with `brand.mjs css` or `brand.mjs brand` output.
+     BRAND:START */
+  /* BRAND:END */
+}

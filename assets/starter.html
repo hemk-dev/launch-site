@@ -1,0 +1,304 @@
+<!doctype html>
+<!--
+  launch-site starter: one page for a local business (spa, salon, studio, clinic, cafe...).
+  Every {{TOKEN}} is a fact from the brief; copy-lint FAILs any token left behind. Delete sections the
+  brief has no material for rather than filling them. In a framework, split this into layout, sections
+  and data files (references/content-model.md); the markup and classes stay the same.
+  Dark mode is opt-in: add data-theme="auto" to <html> only when the brief asks and contrast.py passes both themes.
+-->
+<html lang="{{LANG}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{PAGE_TITLE}}</title><!-- category + place + brand, 60 characters at most -->
+  <meta name="description" content="{{META_DESCRIPTION}}"><!-- 155 characters at most, one fact -->
+  <link rel="canonical" href="{{SITE_URL}}/">
+  <meta name="theme-color" content="{{COLOR_BG_HEX}}">
+  <meta name="site-kind" content="{{KIND}}"><!-- place | service | product | software: read by copy-lint -->
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{BUSINESS_NAME}}">
+  <meta property="og:title" content="{{PAGE_TITLE}}">
+  <meta property="og:description" content="{{META_DESCRIPTION}}">
+  <meta property="og:url" content="{{SITE_URL}}/">
+  <meta property="og:image" content="{{SITE_URL}}/og.jpg"><!-- 1200x630 -->
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- the hero photograph is the LCP element: preload the size phones get -->
+  <link rel="preload" as="image" href="/images/hero-800.avif" type="image/avif"
+        imagesrcset="/images/hero-800.avif 800w, /images/hero-1600.avif 1600w" imagesizes="(min-width: 64em) 55vw, 100vw">
+  <!-- fonts: self-hosted woff2 (brand.mjs prints the packages); preload only the display file the h1 uses -->
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/{{DISPLAY_FONT_FILE}}.woff2" crossorigin>
+
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/motion.css">
+  <!-- only on a page with a scroll moment: <link rel="stylesheet" href="/css/scrollcraft.css"> -->
+
+  <!-- hidden reveal states apply only once JS is confirmed; if no script takes over in 3 s, show everything -->
+  <script>document.documentElement.classList.add('js');setTimeout(function(){var d=document.documentElement;if(!d.classList.contains('ls-ready')&&!d.classList.contains('sc-ready'))d.classList.remove('js')},3000)</script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "{{SCHEMA_TYPE}}",
+    "name": "{{BUSINESS_NAME}}",
+    "url": "{{SITE_URL}}/",
+    "image": "{{SITE_URL}}/og.jpg",
+    "telephone": "{{PHONE_E164}}",
+    "priceRange": "{{PRICE_RANGE}}",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "{{STREET}}",
+      "addressLocality": "{{CITY}}",
+      "postalCode": "{{POSTCODE}}",
+      "addressCountry": "{{COUNTRY_CODE}}"
+    },
+    "openingHoursSpecification": [
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday"], "opens": "{{OPENS}}", "closes": "{{CLOSES}}" }
+    ],
+    "sameAs": []
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="brand" href="/">{{BUSINESS_NAME}}<span class="visually-hidden">, home</span></a>
+      <nav class="nav" aria-label="Main">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="#services">{{NAV_SERVICES}}</a></li>
+          <li><a class="nav__link" href="#about">{{NAV_ABOUT}}</a></li>
+          <li><a class="nav__link" href="#questions">Questions</a></li>
+          <li><a class="nav__link" href="#visit">Visit</a></li>
+        </ul>
+      </nav>
+      <a class="btn btn--primary header-cta" href="{{BOOKING_URL}}">{{MAIN_ACTION}}</a>
+      <button class="menu-button" type="button" data-menu-open aria-expanded="false" aria-controls="menu">Menu</button>
+    </div>
+  </header>
+
+  <dialog class="menu-sheet" id="menu" aria-label="Menu">
+    <div class="menu-sheet__inner">
+      <div class="menu-sheet__top">
+        <span class="brand">{{BUSINESS_NAME}}</span>
+        <button class="menu-button" type="button" data-menu-close>Close</button>
+      </div>
+      <ul class="menu-sheet__list">
+        <li><a href="#services">{{NAV_SERVICES}}</a></li>
+        <li><a href="#about">{{NAV_ABOUT}}</a></li>
+        <li><a href="#questions">Questions</a></li>
+        <li><a href="#visit">Visit</a></li>
+      </ul>
+      <a class="btn btn--primary btn--lg" href="{{BOOKING_URL}}">{{MAIN_ACTION}}</a>
+    </div>
+  </dialog>
+
+  <main id="main">
+    <!-- HERO: exactly the first screen. h1 names the category and the place; one hard fact; at most two
+         actions (one on a place). The text column enters once (data-enter); the picture settles, never hides.
+         Place variant: class="hero hero--photo" with .hero__media moved above .hero__inner (references/design-system.md). -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero__inner">
+        <div class="hero__text" data-enter>
+          <h1 id="hero-title">{{H1_CATEGORY_AND_PLACE}}</h1>
+          <p class="lead">{{HERO_FACT_LINE}}</p>
+          <div class="hero__actions">
+            <a class="btn btn--primary btn--lg" href="{{BOOKING_URL}}" data-hero-cta>{{MAIN_ACTION}}</a>
+            <a class="btn btn--secondary btn--lg" href="#services">{{SECOND_ACTION}}</a>
+          </div>
+        </div>
+        <div class="hero__media" data-enter-media>
+          <picture>
+            <source type="image/avif" srcset="/images/hero-800.avif 800w, /images/hero-1600.avif 1600w" sizes="(min-width: 64em) 55vw, 100vw">
+            <img src="/images/hero-1600.jpg" width="1600" height="2000" alt="{{HERO_ALT}}" fetchpriority="high" decoding="async">
+          </picture>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES: a price does the selling. Cards lift only when they hold a link. -->
+    <section class="section" id="services" aria-labelledby="services-title">
+      <div class="container">
+        <div class="section__head" data-sc-in>
+          <h2 id="services-title">{{SERVICES_HEADING}}</h2>
+          <p class="muted">{{SERVICES_INTRO}}</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <div class="card__media"><img src="/images/service-1-800.avif" width="800" height="600" alt="{{SERVICE_1_ALT}}" loading="lazy" decoding="async"></div>
+            <h3 class="card__title"><a href="/services/{{SERVICE_1_SLUG}}/">{{SERVICE_1_NAME}}</a></h3>
+            <p class="muted">{{SERVICE_1_LINE}}</p>
+            <p class="card__meta"><span>{{SERVICE_1_DURATION}}</span><span class="price">{{SERVICE_1_PRICE}}</span></p>
+          </article>
+          <article class="card">
+            <div class="card__media"><img src="/images/service-2-800.avif" width="800" height="600" alt="{{SERVICE_2_ALT}}" loading="lazy" decoding="async"></div>
+            <h3 class="card__title"><a href="/services/{{SERVICE_2_SLUG}}/">{{SERVICE_2_NAME}}</a></h3>
+            <p class="muted">{{SERVICE_2_LINE}}</p>
+            <p class="card__meta"><span>{{SERVICE_2_DURATION}}</span><span class="price">{{SERVICE_2_PRICE}}</span></p>
+          </article>
+          <article class="card">
+            <div class="card__media"><img src="/images/service-3-800.avif" width="800" height="600" alt="{{SERVICE_3_ALT}}" loading="lazy" decoding="async"></div>
+            <h3 class="card__title"><a href="/services/{{SERVICE_3_SLUG}}/">{{SERVICE_3_NAME}}</a></h3>
+            <p class="muted">{{SERVICE_3_LINE}}</p>
+            <p class="card__meta"><span>{{SERVICE_3_DURATION}}</span><span class="price">{{SERVICE_3_PRICE}}</span></p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT: text left, picture right. Only the brief's real story; with none, delete this section. -->
+    <section class="section section--surface" id="about" aria-labelledby="about-title">
+      <div class="container split">
+        <div class="stack" data-sc-in data-sc-stagger="70">
+          <h2 id="about-title">{{ABOUT_HEADING}}</h2>
+          <p>{{ABOUT_PARAGRAPH_1}}</p>
+          <p>{{ABOUT_PARAGRAPH_2}}</p>
+        </div>
+        <div class="frame ratio-4x5">
+          <img src="/images/about-900.avif" width="900" height="1125" alt="{{ABOUT_ALT}}" loading="lazy" decoding="async">
+        </div>
+      </div>
+    </section>
+
+    <!-- SCROLL MOMENT (balanced and expressive tiers only, one per page): replace this comment with a
+         recipe from references/scroll-engine.md, load scrollcraft.min.js + scrollcraft.css on this page
+         (picture-develops needs neither),
+         and verify it with scripts/scroll-shoot.mjs. Calm tier: leave it out. -->
+
+    <!-- GALLERY: real photographs of the place or the work; a rail on phones, never auto-advancing -->
+    <section class="section" id="work" aria-labelledby="work-title">
+      <div class="container">
+        <div class="section__head" data-sc-in>
+          <h2 id="work-title">{{GALLERY_HEADING}}</h2>
+        </div>
+        <ul class="rail list-plain" role="list">
+          <li class="frame ratio-4x5"><img src="/images/work-1-700.avif" width="700" height="875" alt="{{WORK_1_ALT}}" loading="lazy" decoding="async"></li>
+          <li class="frame ratio-4x5"><img src="/images/work-2-700.avif" width="700" height="875" alt="{{WORK_2_ALT}}" loading="lazy" decoding="async"></li>
+          <li class="frame ratio-4x5"><img src="/images/work-3-700.avif" width="700" height="875" alt="{{WORK_3_ALT}}" loading="lazy" decoding="async"></li>
+          <li class="frame ratio-4x5"><img src="/images/work-4-700.avif" width="700" height="875" alt="{{WORK_4_ALT}}" loading="lazy" decoding="async"></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS: only quotes the brief gives, word for word, with name and town. None is fine. -->
+
+    <!-- FAQ: questions customers really ask; mirrors FAQPage JSON-LD only if the answers are on the page -->
+    <section class="section section--surface" id="questions" aria-labelledby="questions-title">
+      <div class="container split">
+        <div class="section__head" data-sc-in>
+          <h2 id="questions-title">Questions</h2>
+        </div>
+        <div class="faq">
+          <details><summary>{{FAQ_1_Q}}</summary><p>{{FAQ_1_A}}</p></details>
+          <details><summary>{{FAQ_2_Q}}</summary><p>{{FAQ_2_A}}</p></details>
+          <details><summary>{{FAQ_3_Q}}</summary><p>{{FAQ_3_A}}</p></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISIT: name, address and phone exactly as the brief gives them (never invented); same wording as JSON-LD -->
+    <section class="section" id="visit" aria-labelledby="visit-title">
+      <div class="container split">
+        <div class="stack">
+          <h2 id="visit-title">{{VISIT_HEADING}}</h2>
+          <address class="stack">
+            <p>{{STREET}}, {{CITY}}</p>
+            <p><a href="tel:{{PHONE_E164}}">{{PHONE_DISPLAY}}</a></p>
+          </address>
+          <dl class="rows" aria-label="Opening hours">
+            <div><dt>{{DAYS_1}}</dt><dd>{{HOURS_1}}</dd></div>
+            <div><dt>{{DAYS_2}}</dt><dd>{{HOURS_2}}</dd></div>
+          </dl>
+          <p><a class="link" href="https://www.openstreetmap.org/search?query={{STREET_URLENCODED}}%20{{CITY_URLENCODED}}" rel="noopener noreferrer" target="_blank">Get directions<span class="link__arrow" aria-hidden="true">→</span></a></p>
+        </div>
+
+        <form class="form" action="{{FORM_ENDPOINT}}" method="post" data-form
+              data-ok="{{FORM_SENT_LINE}}" data-fail="{{FORM_FAIL_LINE}}" novalidate>
+          <div class="field">
+            <label for="f-name">Name</label>
+            <input id="f-name" name="name" autocomplete="name" required aria-describedby="f-name-error" data-error="{{ERROR_NAME}}">
+            <p class="field__error" id="f-name-error" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="f-contact">Email or phone</label>
+            <input id="f-contact" name="contact" autocomplete="email" required aria-describedby="f-contact-error" data-error="{{ERROR_CONTACT}}">
+            <p class="field__error" id="f-contact-error" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="f-service">Service</label>
+            <select id="f-service" name="service">
+              <option>{{SERVICE_1_NAME}}</option>
+              <option>{{SERVICE_2_NAME}}</option>
+              <option>{{SERVICE_3_NAME}}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-message">Message</label>
+            <textarea id="f-message" name="message"></textarea>
+          </div>
+          <div class="hp" aria-hidden="true"><label for="f-website">Website</label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
+          <button class="btn btn--primary btn--lg" type="submit">{{FORM_BUTTON}}</button>
+          <p class="form__status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- CLOSE: the main action once more, on the brand band -->
+    <section class="section section--brand" aria-labelledby="close-title">
+      <div class="container stack" data-sc-in>
+        <h2 id="close-title">{{CLOSE_HEADING}}</h2>
+        <p>{{CLOSE_FACT_LINE}}</p>
+        <p><a class="btn btn--primary btn--lg" href="{{BOOKING_URL}}">{{MAIN_ACTION}}</a></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="site-footer__grid">
+        <div class="stack">
+          <p class="brand">{{BUSINESS_NAME}}</p>
+          <p class="muted">{{STREET}}, {{CITY}}</p>
+        </div>
+        <nav aria-label="Footer">
+          <h2>Pages</h2>
+          <ul>
+            <li><a href="#services">{{NAV_SERVICES}}</a></li>
+            <li><a href="#about">{{NAV_ABOUT}}</a></li>
+            <li><a href="#visit">Visit</a></li>
+          </ul>
+        </nav>
+        <div>
+          <h2>Hours</h2>
+          <ul>
+            <li>{{DAYS_1}}: {{HOURS_1}}</li>
+            <li>{{DAYS_2}}: {{HOURS_2}}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="legal">
+        <span>© {{YEAR}} {{BUSINESS_NAME}}</span>
+        <a href="/privacy/">Privacy</a>
+        <span>{{PHOTO_CREDIT_LINE}}</span><!-- e.g. "Photographs via Unsplash"; delete when every photo is the client's -->
+      </div>
+    </div>
+  </footer>
+
+  <!-- phone action bar: the main action, worded exactly as in the hero -->
+  <nav class="action-bar" aria-label="Quick actions">
+    <a class="btn btn--primary" href="{{BOOKING_URL}}">{{MAIN_ACTION}}</a>
+    <a class="btn btn--secondary" href="tel:{{PHONE_E164}}">Call us</a>
+  </nav>
+
+  <!-- with a scroll moment, load the minified engine first: <script src="/js/scrollcraft.min.js" defer></script> -->
+  <script src="/js/site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+/*
+  motion.css: the micro-interaction layer, the hero entrance and section reveals.
+  Adapted from taste-skill's motion layer (MIT). Numbers and rules: references/motion.md.
+  Load after tokens.css and base.css on every page. CSS only; reveals need site.js or scrollcraft.js.
+
+  - Hover moves only for a fine pointer; keyboard focus shows the same state anywhere.
+  - Only transform, scale and opacity move (a hover also changes colours). Nothing animates
+    width, height, margin, padding, top or left.
+  - Under prefers-reduced-motion colours still change and a press still shows; nothing travels.
+  - Hidden starting states live under html.js only, so the page is whole without JavaScript.
+*/
+@layer motion {
+  /* ------------------------------------------------------------ buttons */
+  .btn {
+    transition: background-color var(--m-out) var(--ease), color var(--m-out) var(--ease),
+                border-color var(--m-out) var(--ease), transform var(--m-press) var(--ease);
+  }
+  .btn:hover { transition-duration: var(--m-in), var(--m-in), var(--m-in), var(--m-press); }
+  .btn--primary:hover { background-color: var(--color-primary-hover); }
+  .btn--secondary:hover { border-color: var(--color-text); background-color: color-mix(in oklab, var(--color-text) 5%, transparent); }
+  .btn:active { transform: translateY(1px) scale(0.985); }
+  @media (hover: hover) and (pointer: fine) {
+    .btn:hover { transform: translateY(-1px); }
+    .btn--lg:hover { transform: translateY(-2px); }
+    .btn:hover:active { transform: translateY(1px) scale(0.985); }
+  }
+
+  /* ------------------------------------------------------------ links: an underline that draws
+     Running-text links rest on a 45% line of their own colour (reads as a link without relying on
+     colour alone, WCAG 1.4.1); the full line draws left to right on hover and leaves to the right. */
+  :is(.link, .prose a, p a:not([class])) {
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor),
+                      linear-gradient(color-mix(in oklab, currentColor 45%, transparent), color-mix(in oklab, currentColor 45%, transparent));
+    background-repeat: no-repeat;
+    background-size: 0% 1px, 100% 1px;
+    background-position: right 0 bottom 0, 0 100%;
+    padding-bottom: 2px;
+    transition: background-size var(--m-out) var(--ease), color var(--m-out) var(--ease);
+  }
+  :is(.link, .prose a, p a:not([class])):is(:hover, :focus-visible) {
+    background-size: 100% 1px, 100% 1px;
+    background-position: left 0 bottom 0, 0 100%;
+    transition-duration: var(--m-in);
+  }
+  /* a standalone link with an arrow: the arrow nudges 3px */
+  .link__arrow { display: inline-block; transition: transform var(--m-out) var(--ease); }
+  .link:focus-visible .link__arrow { transform: translateX(3px); transition-duration: var(--m-in); }
+  @media (hover: hover) and (pointer: fine) {
+    .link:hover .link__arrow { transform: translateX(3px); transition-duration: var(--m-in); }
+  }
+
+  /* ------------------------------------------------------------ navigation
+     Nav words rest bare and draw a 1px line under the word; the current page keeps a still 2px bar. */
+  .nav__link { position: relative; }
+  .nav__link::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px;
+    background: currentColor; transform: scaleX(0); transform-origin: right center;
+    transition: transform var(--m-out) var(--ease);
+  }
+  .nav__link:is(:hover, :focus-visible)::after { transform: scaleX(1); transform-origin: left center; transition-duration: var(--m-in); }
+  .nav__link[aria-current="page"]::after { height: 2px; transform: none; transition: none; }
+
+  /* the phone menu (a native <dialog>) fades and settles 8px */
+  .menu-sheet[open] { animation: ls-sheet var(--m-panel) var(--ease) both; }
+  @keyframes ls-sheet { from { opacity: 0; transform: translateY(-8px); } }
+
+  /* ------------------------------------------------------------ cards: a 2px lift, linked cards only
+     A card without a link never moves (.m-nolift, or simply no link inside). Never tilts or glows. */
+  .card { transition: transform var(--m-out) var(--ease), border-color var(--m-out) var(--ease), box-shadow var(--m-out) var(--ease); }
+  @media (hover: hover) and (pointer: fine) {
+    .card:has(a):not(.m-nolift):hover {
+      transform: translateY(-2px);
+      border-color: var(--color-border-strong);
+      box-shadow: var(--shadow-2);
+      transition-duration: 180ms;
+    }
+  }
+  /* a linked card shows keyboard focus as one ring on the whole card */
+  .card:has(a:focus-visible) { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+  .card:has(a:focus-visible) a:focus-visible { outline: none; }
+
+  /* ------------------------------------------------------------ photographs: 1.03 inside the frame
+     The frame clips, so the box never grows; never dims or takes an overlay. */
+  .m-zoom { overflow: clip; }
+  :is(.m-zoom, .card:has(a) .card__media) :is(img, video) { transition: transform var(--m-image-out) var(--ease); }
+  @media (hover: hover) and (pointer: fine) {
+    :is(a, .card:has(a)):hover :is(.m-zoom, .card__media) :is(img, video),
+    .m-zoom:hover :is(img, video) { transform: scale(1.03); transition-duration: var(--m-image); }
+  }
+
+  /* ------------------------------------------------------------ fields */
+  .field :is(input, select, textarea) { transition: border-color var(--m-out) var(--ease), box-shadow var(--m-out) var(--ease); }
+  .field :is(input, select, textarea):hover { border-color: var(--color-text-muted); }
+  .field :is(input, select, textarea):focus-visible {
+    outline: none; border-color: var(--color-focus);
+    box-shadow: 0 0 0 1px var(--color-focus), 0 0 0 4px color-mix(in oklab, var(--color-focus) 22%, transparent);
+    transition-duration: 0s;   /* focus is drawn in the frame it lands */
+  }
+
+  /* ------------------------------------------------------------ the hero entrance (CSS only, once)
+     Starts at first paint with no script gate, about 1 s in all: the text column's children rise
+     12px one after another (h1 first, whole, never split into word masks), the picture settles from
+     1.05 inside its frame. The picture is never hidden or faded, so it can be the LCP element. */
+  @media screen and (prefers-reduced-motion: no-preference) {
+    [data-enter] > * { animation: ls-rise var(--m-enter) var(--ease-out) both; }
+    [data-enter] > :nth-child(2) { animation-delay: 90ms; animation-duration: 560ms; }
+    [data-enter] > :nth-child(3) { animation-delay: 160ms; animation-duration: 560ms; }
+    [data-enter] > :nth-child(n+4) { animation-delay: 230ms; animation-duration: 560ms; }
+    [data-enter-media] { overflow: clip; }
+    [data-enter-media] :is(img, video) { animation: ls-settle 1100ms var(--ease-out) both; }
+  }
+  @keyframes ls-rise { from { opacity: 0; transform: translateY(12px); } }
+  @keyframes ls-settle { from { scale: 1.05; } }
+
+  /* ------------------------------------------------------------ section reveals (fire once)
+     Markup: data-sc-in on one block per section, or data-sc-in data-sc-stagger="70" on a group
+     (2 to 4 children). Never on the hero, the LCP element or a whole card grid.
+     site.js (or scrollcraft.js when the page loads it) adds .sc-in on entry. */
+  .js [data-sc-in]:not([data-sc-stagger]),
+  .js [data-sc-in][data-sc-stagger] > * {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+    transition: opacity 620ms var(--ease-out), transform 620ms var(--ease-out);
+  }
+  .js [data-sc-in].sc-in:not([data-sc-stagger]),
+  .js [data-sc-in][data-sc-stagger] > .sc-in { opacity: 1; transform: none; }
+  /* a long group never cascades: everything past the fourth child arrives with the fourth */
+  .js [data-sc-in][data-sc-stagger] > :nth-child(n+5) { transition-delay: 240ms !important; }
+
+  /* ------------------------------------------------------------ reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .btn:is(:hover, :active), .card:hover, .link .link__arrow,
+    :is(a, .card, .m-zoom):hover :is(img, video) { transform: none !important; }
+    .btn--primary:active { background-color: var(--color-primary-hover); }
+    :is(.link, .prose a, p a:not([class])) { transition-property: color; }
+    .nav__link::after { transition: none; }
+    .menu-sheet[open] { animation: none; }
+    .js [data-sc-in]:not([data-sc-stagger]),
+    .js [data-sc-in][data-sc-stagger] > * { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* ------------------------------------------------------------ print shows everything at rest */
+  @media print {
+    [data-enter] > *, [data-enter-media] :is(img, video),
+    .js [data-sc-in], .js [data-sc-in] > *, .js [data-sc-cue] {
+      opacity: 1 !important; transform: none !important; animation: none !important; scale: none !important;
+    }
+  }
+}
+
+/* page-to-page crossfade on multi-page sites (same-origin navigations; ignored where unsupported) */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
